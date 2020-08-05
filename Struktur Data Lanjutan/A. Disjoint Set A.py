@@ -10,12 +10,19 @@ class node:
 
 if __name__ == "__main__":
     n, m = [int(x) for x in input().split(" ")]
-    tree = [node() for x in range(n + 1)]
+    # tree = []*(n+1)
+    tree = {}
     cycle = -1
     for i in range(1, m + 1):
         a, b = [int(x) for x in input().split(" ")]
-        x = tree[a].getparent()
-        y = tree[b].getparent()
+        if a in tree:
+            x = tree[a].getparent()
+        else:
+            x = node()
+        if b in tree:
+            y = tree[b].getparent()
+        else:
+            y = node()
         if x == y:
             cycle = i
             break
