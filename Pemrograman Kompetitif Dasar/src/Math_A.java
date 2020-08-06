@@ -9,6 +9,6 @@ public class Math_A {
         BigInteger B =new BigInteger(in.next());
         if(A.mod(B).toString().equals("0") ) System.out.println(N.divide(B));
         else if (B.mod(A).toString().equals("0") ) System.out.println(N.divide(A));
-        else System.out.println(N.divide(A).add(N.divide(B)).subtract(N.divide(A.multiply(B))));
+        else System.out.println(N.divide(A).add(N.divide(B)).subtract(N.divide(A.multiply(B).divide(A.gcd(B)))));
     }
 }
