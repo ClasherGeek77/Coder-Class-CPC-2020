@@ -7,6 +7,8 @@ public class Math_A {
         BigInteger N =new BigInteger(in.next());
         BigInteger A =new BigInteger(in.next());
         BigInteger B =new BigInteger(in.next());
-        System.out.println(N.divide(A).add(N.divide(B)).subtract(N.divide(A.multiply(B))));
+        if(A.mod(B).toString().equals("0") ) System.out.println(N.divide(B));
+        else if (B.mod(A).toString().equals("0") ) System.out.println(N.divide(A));
+        else System.out.println(N.divide(A).add(N.divide(B)).subtract(N.divide(A.multiply(B))));
     }
 }
