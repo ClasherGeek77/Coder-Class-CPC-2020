@@ -1,104 +1,94 @@
-'''
-implement lazy update
-cuma update parent aja, bit parent di inverse kalo child ganjil
-parent kasi tanda
+import math
+class seg_tree:
+    arr = []
+    lazy = []
+    n = 0
 
-kalo anak mau di update, cek bit parent // pasang bit di pointer pas ngetraversal tree
-'''
+    def __init__(self, arr, n):
+        size = 4*n-1
+        self.arr = [0] * size
+        self.lazy = [0] * size
+        self.createTree(arr, 0, n - 1, 0)
+        self.n = n
+        pass
 
+    def createTree(self, arr, start, end, ind):
+        if (start > end):
+            return
+        if (start == end):
+            self.arr[ind] = arr[start]
+            return
+        mid = (start + end) // 2
+        self.createTree(arr, start, mid, ind * 2 + 1)
+        self.createTree(arr, mid + 1, end, ind * 2 + 2)
+        self.arr[ind] = self.arr[ind * 2 + 1] + self.arr[ind * 2 + 2]
 
-class node:
-    left = None
-    right = None
-    value = None
-    mask = 0
-    delta = None
-    updated = True
-    ran = []
+    def getSum(self, start, end):
+        return self.treeSum(0, self.n - 1, start, end, 0)
 
-    def __init__(self, ran, val=None):
-        self.value = val
-        self.ran = ran
-        self.delta = (ran[1] - ran[0]) % 2
-
-    def calcVal(self, searchran, unupdated=False, mask=0):
-        if self.ran[0] >= searchran[0] and self.ran[1] <= searchran[1]:
-            # inside search range
-            if unupdated:
-                self.value ^= mask
-                self.mask ^= mask
-                self.updated = False
-            return self.value
-        if self.ran[0] > searchran[1] or self.ran[1] < searchran[0]:
-            # outside of search range
+    def treeSum(self, start, end, searchs, searche, ind):
+        if (self.lazy[ind] != 0):
+            if ((end - start) % 2 == 0):
+                self.arr[ind] ^= self.lazy[ind]
+            if (start != end):
+                self.lazy[ind * 2 + 1] ^= self.lazy[ind]
+                self.lazy[ind * 2 + 2] ^= self.lazy[ind]
+            self.lazy[ind] = 0
+        if (start > end or start > searche or end < searchs):
             return 0
-        if unupdated or not self.updated:
-            self.updated = True
-            self.value ^= mask
-            mask ^= self.mask
-            self.mask = 0
-            return self.left.calcVal(searchran, True, mask) + self.right.calcVal(searchran, True, mask)
-        return self.left.calcVal(searchran) + self.right.calcVal(searchran)
+        if (start >= searchs and end <= searche):
+            return self.arr[ind]
+        mid = (start + end) // 2
+        return (self.treeSum(start, mid, searchs, searche, 2 * ind + 1) +
+                self.treeSum(mid + 1, end, searchs, searche, 2 * ind + 2))
 
-    def flipbit(self, searchran, mask):
-        if self.ran[0] > searchran[1] or self.ran[1] < searchran[0]:
-            # outside of search range
+    def updateRange(self, start, end, val):
+        val = 1 << val
+        self.treeUpdate(0, self.n - 1, start, end, 0, val)
+
+    def treeUpdate(self, start, end, upds, upde, ind, val):
+        if (self.lazy[ind] != 0):
+            if ((end - start) % 2 == 0):
+                self.arr[ind] ^= self.lazy[ind]
+            if (start != end):
+                self.lazy[ind * 2 + 1] ^= self.lazy[ind]
+                self.lazy[ind * 2 + 2] ^= self.lazy[ind]
+            self.lazy[ind] = 0
+        if (start > end or start > upde or end < upds):
             return
-        if self.ran[0] >= searchran[0] and self.ran[1] <= searchran[1]:
-            # inside range
-            self.mask ^= mask
-            self.updated = False
-            if (self.delta == 0):
-                self.value ^= mask
+        if (start >= upds and end <= upde):
+            if ((end - start) % 2 == 0):
+                self.arr[ind] ^= val
+            if (start != end):
+                self.lazy[ind * 2 + 1] ^= val
+                self.lazy[ind * 2 + 2] ^= val
             return
-        self.left.flipbit(searchran, mask)
-        self.right.flipbit(searchran, mask)
-        self.value = self.left.value + self.right.value
-        return
-
-
-def createTree(arr, left: int, right: int) -> node:
-    if left >= right:
-        return node([left, left], arr[left])
-    else:
-        mid = (left + right) // 2
-        temp = node([left, right])
-        temp.left = createTree(arr, left, mid)
-        temp.right = createTree(arr, mid + 1, right)
-        temp.value = temp.left.value + temp.right.value
-        return temp
-
-
-class segment:
-    head = None
-    '''
-    jangan pake array, pake linked list aja
-    '''
-
-    def __init__(self, arr):
-        self.head = createTree(arr, 0, len(arr) - 1)
-
-    def inverse(self, com):
-        invbit = 1 << com[2]
-        self.head.flipbit(com[0:2], invbit)
-        pass
-
-    def count(self, com):
-        return self.head.calcVal(com)
-        pass
+        mid = (start + end) // 2
+        self.treeUpdate(start, mid, upds, upde, ind * 2 + 1, val)
+        self.treeUpdate(mid + 1, end, upds, upde, ind * 2 + 2, val)
+        self.arr[ind] = self.arr[ind * 2 + 1] + self.arr[ind * 2 + 2]
 
 
 if __name__ == "__main__":
+    '''arr = [1, 2, 3, 4, 5];
+    n = 5;
+    tree = seg_tree(arr, n)
+    print(tree.getSum(0, 4))
+    tree.updateRange(3, 3, 2)
+    print(tree.getSum(0, 4))
+    tree.updateRange(0, 3, 1)
+    print(tree.getSum(1, 3))'''
+
     n, m = [int(x) for x in input().split(" ")]
     arr = [int(x) for x in input().split(" ")]
-    tree = segment(arr)  # make tree from arr here // needs tree class
+    tree = seg_tree(arr, n)
 
     for i in range(m):
         com = [int(x) for x in input().split(" ")]
         com[1] -= 1
         com[2] -= 1
         if (com[0] == 1):
-            tree.inverse(com[1::])
+            tree.updateRange(com[1], com[2], com[3])
         else:
-            print(tree.count(com[1::]))
+            print(tree.getSum(com[1], com[2]))
     pass
