@@ -1,7 +1,6 @@
 #check if first player can take lasta stone
 #check if first player can result in even playing field
-#check number of rows > 1
-#check number of rows
+#sprague grundy theorem
 '''
 1 row = guaranteed win
 2 row : bikin 2 row 1
@@ -18,9 +17,8 @@ if __name__ == "__main__":
     n = int(input())
     temp = 0
     #if current playing field is even (XOR all), p1 lose
-    inp = [int(x) for x in input().split(" ")]
-    for i in inp:
-        temp^= i
+    for i in input().split(" "):
+        temp^= int(i)
     if(temp==0):
         print("TIDAK")
     else:
